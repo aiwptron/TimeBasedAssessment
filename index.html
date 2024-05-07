@@ -1,0 +1,88 @@
+
+<!DOCTYPE html>
+<html lang="en" ng-app="quizApp">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HirePro</title>
+    <style>
+        .assessment {
+            display: flex;
+            flex-direction: column;
+            /* max-width: 800px; */
+            margin: 0 auto;
+        }
+        .header {
+            text-align: center;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        .body {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            padding: 20px;
+        }
+        .question-list {
+            flex: 1;
+        }
+        .question {
+            flex: 7;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        .footer {
+            text-align: center;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        .active {
+            background-color: green; /* Adjust the color as needed */
+            color: white; /* Adjust the text color as needed */
+        }
+
+        .visited {
+            background-color: red; /* Adjust the color as needed */
+            color: white; /* Adjust the text color as needed */
+        }
+        .disabled {
+            opacity: 0.5; /* Adjust the opacity as needed */
+            cursor: not-allowed;
+            pointer-events:all;
+        }
+
+    </style>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+</head>
+<body>
+    <div class="assessment" ng-controller="QuizController">
+        <div class="header">
+            <h1>HirePro assessment</h1>
+            <p>Time Left: {{ mainTimer }} seconds</p>
+        </div>
+        <div class="body">
+            <div class="question-list">
+                <ul>
+                    <li ng-repeat="question in questions">
+                        <button ng-click="goToQuestion($index)" ng-class="{ 'active': currentQuestionIndex === $index, 'visited': visitedQuestionIndices.includes($index) }" ng-disabled="visitedQuestionIndices.includes($index)"> {{ $index + 1 }} </button>
+                    </li>
+                </ul>
+            </div>
+            <div class="question">
+                <h2>{{ currentQuestion.question }}</h2>
+                <div ng-repeat="option in currentQuestion.options">
+                    <input type="radio" name="option" ng-model="selectedOption" ng-value="option">{{ option }}
+                </div>
+            </div>
+            
+        </div>
+        <div class="footer">
+             <button ng-click="previousQuestion()" ng-disabled="currentQuestionIndex === 0">Previous</button>
+            <button ng-click="nextQuestion()" ng-disabled="currentQuestionIndex === questions.length - 1" >Next</button>
+            <button ng-show="currentQuestionIndex === questions.length - 1" ng-click="submitQuiz()">Submit</button>
+        </div>
+    </div>
+
+    <script src="quiz.js"></script>
+</body>
+</html>

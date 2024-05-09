@@ -59,7 +59,7 @@ angular.module('quizApp', [])
                     $scope.mainTimer = 60;
                     moveToNextQuestion();
                 }
-            }, 100); // Update timer every second
+            }, 1000); // Update timer every second
         }
 
 

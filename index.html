@@ -15,7 +15,7 @@
         .header {
             text-align: center;
             padding: 20px;
-            background-color: #f0f0f0;
+            background-color: #bde65e;
         }
         .body {
             display: flex;
@@ -24,23 +24,27 @@
             padding: 20px;
         }
         .question-list {
-            flex: 1;
+            padding-top: 10px;
+            background-color: #d594bd;
+            flex: .5;
         }
         .question {
+            padding-left: 20px;
             flex: 7;
-            padding: 20px;
-            background-color: #f9f9f9;
+            padding: 0;
+            background-color: #f096cf;
         }
         .footer {
             text-align: center;
             padding: 20px;
-            background-color: #f0f0f0;
+            background-color: #bde65e;
+            margin-top: 40px;
+            margin-bottom: 0px;
         }
         .active {
             background-color: green; /* Adjust the color as needed */
             color: white; /* Adjust the text color as needed */
         }
-
         .visited {
             background-color: red; /* Adjust the color as needed */
             color: white; /* Adjust the text color as needed */
@@ -63,9 +67,9 @@
         <div class="body">
             <div class="question-list">
                 <ul>
-                    <li ng-repeat="question in questions">
+                    <p ng-repeat="question in questions">
                         <button ng-click="goToQuestion($index)" ng-class="{ 'active': currentQuestionIndex === $index, 'visited': visitedQuestionIndices.includes($index) }" ng-disabled="visitedQuestionIndices.includes($index)"> {{ $index + 1 }} </button>
-                    </li>
+                    </p>
                 </ul>
             </div>
             <div class="question">

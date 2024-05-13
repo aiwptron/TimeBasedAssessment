@@ -1,5 +1,6 @@
 angular.module('quizApp', [])
-    .controller('QuizController', ['$scope', '$interval', function ($scope, $interval) {
+    .controller('QuizController', ['$scope', function ($scope) {
+        // Initialize the quiz questions
         $scope.questions = [{
                 question: 'What is the capital of France?',
                 options: ['Paris', 'London', 'Berlin', 'Rome'],
@@ -22,8 +23,8 @@ angular.module('quizApp', [])
             },
             {
                 question: ' How does tha induction motor start',
-                options: ['urrrrrr', 'hurrrrr', 'burrrr'],
-                correctAnswer: 'burrrr'
+                options: ['a', 'br', 'c'],
+                correctAnswer: 'br'
             },
             {
                 question: 'What is 5?',
@@ -35,118 +36,76 @@ angular.module('quizApp', [])
                 options: ['Horse', 'airplane', 'donkey', 'pegion'],
                 correctAnswer: 'pigeon'
             }
-
         ];
 
-
-        $scope.visitedQuestionIndices = [];
-
+        // Initialize variables for the quiz
         $scope.currentQuestionIndex = 0;
         $scope.currentQuestion = $scope.questions[$scope.currentQuestionIndex];
+        $scope.mainTimer = 30; 
 
-        var mainTimerInterval, questionTimerInterval;
-        $scope.mainTimer = 60;
+        // Create a new web worker for the main timer
+        var timerWorker = new Worker('timerWorker.js');
 
+        // Start the main timer
+        timerWorker.postMessage({
+            mainTimer: $scope.mainTimer
+        });
 
-        startMainTimer();
-
-        function startMainTimer() {
-            mainTimerInterval = $interval(function () {
-                if ($scope.mainTimer > 0) {
-                    $scope.mainTimer--;
-
-                } else {
-                    $scope.mainTimer = 60;
-                    moveToNextQuestion();
-                }
-            }, 1000); // Update timer every second
-        }
-
-
-
-        function stopTimers() {
-            if (angular.isDefined(mainTimerInterval)) {
-                $interval.cancel(mainTimerInterval);
-                mainTimerInterval = undefined;
+        // Listen for messages from the web worker
+        timerWorker.onmessage = function (event) {
+            var message = event.data;
+            if (message.type === 'updateTimer') {
+                $scope.$apply(function () {
+                    $scope.mainTimer = message.mainTimer;
+                });
+            } else if (message.type === 'moveToNextQuestion') {
+                moveToNextQuestion();
+            } else if (message.type === 'submitQuiz') {
+                submitQuiz();
             }
-            if (angular.isDefined(questionTimerInterval)) {
-                $interval.cancel(questionTimerInterval);
-                questionTimerInterval = undefined;
-            }
-        }
+        };
 
+
+
+        
+
+
+        // Function to move to the next question
         function moveToNextQuestion() {
             if ($scope.currentQuestionIndex < $scope.questions.length - 1) {
-                if (!$scope.visitedQuestionIndices.includes($scope.currentQuestionIndex)) {
-                    $scope.visitedQuestionIndices.push($scope.currentQuestionIndex);
-                }
                 $scope.currentQuestionIndex++;
                 $scope.currentQuestion = $scope.questions[$scope.currentQuestionIndex];
-                $scope.mainTimer = 60;
+
+                // Restart the timer
+                $scope.mainTimer = 30; // Reset to initial timer value
+                timerWorker.postMessage({
+                    type: 'restartTimer',
+                    mainTimer: $scope.mainTimer
+                });
             } else {
-                
                 $scope.submitQuiz();
-                stopTimers(); // Stop timers if last question is reached
+                stopTimers(); 
             }
         }
 
-
-        //Next Button
+        $scope.stopTimerWorker = function () {
+            timerWorker.terminate();
+            alert("Timer stopped.");
+        };
 
         $scope.nextQuestion = function () {
             moveToNextQuestion();
-            $scope.mainTimer = 60;
 
-        };
-
-
-
-        //Previous Question buttion 
-
-        $scope.previousQuestion = function () {
-            if ($scope.currentQuestionIndex > 0) {
-                // Check if the previous question has been visited
-                if (!$scope.visitedQuestionIndices.includes($scope.currentQuestionIndex - 1)) {
-                    // If not visited, allow to go to the previous question
-                    $scope.currentQuestionIndex--;
-                    $scope.currentQuestion = $scope.questions[$scope.currentQuestionIndex];
-
-
-                }
-
-                $scope.currentQuestionIndex = index;
-                $scope.currentQuestion = $scope.questions[index];
-                $scope.mainTimer = 60;
-            }
-
+            $scope.mainTimer = 30;
         };
 
 
 
 
-        //Moving To questions using the index list
-
-        // $scope.goToQuestion = function (index) {
-        //     // Update visited question indices
-        //     if ($scope.currentQuestionIndex !== index) {
-        //         $scope.visitedQuestionIndices.push($scope.currentQuestionIndex);
-        //     }
-
-        //     $scope.currentQuestionIndex = index;
-        //     $scope.currentQuestion = $scope.questions[index];
-        //     $scope.mainTimer = 60;
-
-
-        // };
-
-
+        // Function to handle submission of the quiz
         $scope.submitQuiz = function () {
-
-            
-            if (!$scope.visitedQuestionIndices.includes($scope.currentQuestionIndex)) {
-                $scope.visitedQuestionIndices.push($scope.currentQuestionIndex);
-            }
-            stopTimers();
-            alert('THANK YOU FOR ATTENDING THE ASSESSMENT');
+            // stopTimers()
+            timerWorker.terminate();
+            alert("Thank You ")
         };
     }]);
